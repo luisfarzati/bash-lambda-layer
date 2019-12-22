@@ -27,7 +27,7 @@ sendRuntimeError () {
   SEGMENT=$5
   ERROR="{\"errorMessage\": \"$ERROR_MESSAGE\", \"errorType\": \"$ERROR_TYPE\", \"stackTrace\": \"$STACK_TRACE\"}"
   curl -sS -X POST -d "$ERROR" "http://${AWS_LAMBDA_RUNTIME_API}/${RUNTIME_PATH}/invocation/${REQUEST_ID}/error" > /dev/null
-  python $HOME/bin/xray_error.py "$SEGMENT" "$STACK_TRACE"
+  python /opt/bin/xray_error.py "$SEGMENT" "$STACK_TRACE"
   curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"*$AWS_LAMBDA_FUNCTION_NAME* errored: \`\`\`$ERROR_TYPE: $STACK_TRACE\`\`\`\"}" $SLACK_WEBHOOK_URL > /dev/null
 }
 
@@ -64,7 +64,7 @@ fi
 # Processing
 while true
 do
-  SEGMENT=$(python $HOME/bin/xray_start.py)
+  SEGMENT=$(python /opt/bin/xray_start.py)
   HEADERS="/tmp/headers-$(date +'%s')"
   RESPONSE="/tmp/response-$(date +'%s')"
   touch $HEADERS
@@ -90,7 +90,7 @@ do
   # Clean up
   rm -f -- "$HEADERS"
   rm -f -- "$RESPONSE"
-  python $HOME/bin/xray_success.py "$SEGMENT"
+  python /opt/bin/xray_success.py "$SEGMENT"
   unset HEADERS
   unset RESPONSE
 done
